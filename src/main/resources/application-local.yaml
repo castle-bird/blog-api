@@ -1,0 +1,13 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/castlebird
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+  data:
+    redis:
+      host: localhost
+
+app:
+  security:
+    allowed-origins: http://localhost:3000
+    cookie-secure: false
