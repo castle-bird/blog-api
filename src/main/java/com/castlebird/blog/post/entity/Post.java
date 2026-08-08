@@ -25,17 +25,17 @@ import org.hibernate.annotations.SQLRestriction;
 public class Post extends BaseUpdatableEntity {
 
   @Column(name = "title", nullable = false, length = 100)
-  String title;
+  private String title;
 
   @Column(name = "content", nullable = false, columnDefinition = "TEXT")
-  String content;
+  private String content;
 
   @Column(name = "view_count", nullable = false)
-  Long viewCount = 0L;
+  private Long viewCount = 0L;
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "author_id", nullable = false)
-  User author;
+  private User author;
 
   @OneToMany(mappedBy = "post")
   private List<PostTag> postTags;

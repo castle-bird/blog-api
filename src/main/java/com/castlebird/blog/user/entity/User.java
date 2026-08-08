@@ -21,19 +21,19 @@ import org.hibernate.type.SqlTypes;
 public class User extends BaseUpdatableEntity {
 
   @Column(name = "username", nullable = false, length = 50)
-  String username;
+  private String username;
 
   @Column(name = "password", nullable = false, length = 255)
-  String password;
+  private String password;
 
   @Column(name = "email", nullable = false, length = 100, unique = true)
-  String email;
+  private String email;
 
   @Column(name = "nickname", nullable = false, length = 50)
-  String nickname;
+  private String nickname;
 
   @Enumerated(EnumType.STRING)
   @JdbcTypeCode(SqlTypes.NAMED_ENUM)
   @Column(name = "role", nullable = false, columnDefinition = "user_role")
-  UserRole role = UserRole.USER;
+  private UserRole role = UserRole.USER;
 }
