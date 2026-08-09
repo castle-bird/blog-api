@@ -1,6 +1,6 @@
 package com.castlebird.blog.global.response;
 
-import com.castlebird.blog.global.exception.ErrorCode;
+import com.castlebird.blog.global.exception.code.ErrorCode;
 
 public record ErrorResponse(
   String code,

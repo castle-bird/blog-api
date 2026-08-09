@@ -1,6 +1,6 @@
 package com.castlebird.blog.user.exception;
 
-import com.castlebird.blog.global.exception.ErrorCode;
+import com.castlebird.blog.global.exception.code.ErrorCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

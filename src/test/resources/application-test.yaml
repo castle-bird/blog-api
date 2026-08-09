@@ -17,3 +17,15 @@ spring:
 
   cache:
     type: simple
+
+app:
+  jwt:
+    access-token-expiration: 15m
+    secret: MTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI=
+    issuer: test-issuer
+  security:
+    allowed-origins:
+      - http://localhost
+    refresh-token-expiration: 14d
+    cookie-name: REFRESH-TOKEN
+    cookie-secure: false

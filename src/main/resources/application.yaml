@@ -48,3 +48,8 @@ app:
   security:
     refresh-token-expiration: 14d
     cookie-name: REFRESH-TOKEN
+  admin:
+    username: ${ADMIN_USERNAME}
+    password: ${ADMIN_PASSWORD}
+    email: ${ADMIN_EMAIL}
+    nickname: ${ADMIN_NICKNAME}
