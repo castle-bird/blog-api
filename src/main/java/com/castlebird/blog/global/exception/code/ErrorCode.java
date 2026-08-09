@@ -1,4 +1,4 @@
-package com.castlebird.blog.global.exception;
+package com.castlebird.blog.global.exception.code;
 
 import org.springframework.http.HttpStatus;
 
