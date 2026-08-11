@@ -9,12 +9,11 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
-
 import org.hibernate.annotations.SQLRestriction;
 
 @Entity
@@ -38,9 +37,37 @@ public class Post extends BaseUpdatableEntity {
   private User author;
 
   @OneToMany(mappedBy = "post")
-  private List<PostTag> postTags;
+  private List<PostTag> postTags = new ArrayList<>();
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "category_id", nullable = false)
   private Category category;
+
+  private Post(
+      String title,
+      String content,
+      User author,
+      Category category
+  ) {
+    this.title = title;
+    this.content = content;
+    this.author = author;
+    this.category = category;
+  }
+
+  public static Post create(
+      String title,
+      String content,
+      User author,
+      Category category
+  ) {
+    return new Post(title, content, author, category);
+  }
+
+  public PostTag addTag(Tag tag) {
+    PostTag postTag = PostTag.create(this, tag);
+    postTags.add(postTag);
+
+    return postTag;
+  }
 }
