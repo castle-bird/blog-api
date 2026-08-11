@@ -7,9 +7,6 @@ import com.castlebird.blog.post.dto.request.UpdatePostRequest;
 import com.castlebird.blog.post.dto.response.PostListResponse;
 import com.castlebird.blog.post.dto.response.PostResponse;
 import com.castlebird.blog.post.service.PostService;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +30,7 @@ public class PostController implements PostControllerApi {
   @Override
   @PostMapping
   public ResponseEntity<SuccessResponse<PostResponse>> createPost(
-      @Valid @RequestBody CreatePostRequest createPostRequest
+      @RequestBody CreatePostRequest createPostRequest
   ) {
     PostResponse response =
         postService.createPost(createPostRequest);
@@ -60,7 +57,7 @@ public class PostController implements PostControllerApi {
   @GetMapping
   public ResponseEntity<SuccessResponse<PostListResponse>> getPosts(
       @RequestParam(required = false) Long cursorId,
-      @RequestParam(defaultValue = "10") @Min(1) @Max(100) int size
+      @RequestParam(defaultValue = "10") int size
   ) {
     PostListResponse response =
         postService.getPosts(cursorId, size);
@@ -74,7 +71,7 @@ public class PostController implements PostControllerApi {
   @PutMapping("/{postId}")
   public ResponseEntity<SuccessResponse<PostResponse>> updatePost(
       @PathVariable Long postId,
-      @Valid @RequestBody UpdatePostRequest updatePostRequest
+      @RequestBody UpdatePostRequest updatePostRequest
   ) {
     PostResponse response =
         postService.updatePost(postId, updatePostRequest);

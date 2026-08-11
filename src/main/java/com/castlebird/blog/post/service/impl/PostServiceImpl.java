@@ -23,6 +23,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -80,7 +83,24 @@ public class PostServiceImpl implements PostService {
   @Override
   @Transactional(readOnly = true)
   public PostListResponse getPosts(Long cursorId, int size) {
-    return null;
+    Pageable pageable = PageRequest.of(0, size);
+
+    Slice<Post> postSlice = cursorId == null
+        ? postRepository.findAllByOrderByIdDesc(pageable)
+        : postRepository.findByIdLessThanOrderByIdDesc(cursorId, pageable);
+
+    List<PostResponse> posts = postSlice.getContent().stream()
+        .map(postMapper::toPostResponse)
+        .toList();
+
+    Long nextCursorId = postSlice.hasNext()
+        ? postSlice.getContent().getLast().getId()
+        : null;
+
+    return PostListResponse.of(
+        posts,
+        nextCursorId,
+        postSlice.hasNext());
   }
 
   @Override

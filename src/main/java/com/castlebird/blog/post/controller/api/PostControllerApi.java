@@ -8,6 +8,7 @@ import com.castlebird.blog.post.dto.response.PostResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import org.springframework.http.ResponseEntity;
@@ -16,18 +17,23 @@ import org.springframework.http.ResponseEntity;
 public interface PostControllerApi {
 
   @Operation(summary = "게시글 생성", security = @SecurityRequirement(name = "bearerAuth"))
-  ResponseEntity<SuccessResponse<PostResponse>> createPost(CreatePostRequest createPostRequest);
+  ResponseEntity<SuccessResponse<PostResponse>> createPost(
+      @Valid CreatePostRequest createPostRequest
+  );
 
   @Operation(summary = "게시글 단건 조회")
   ResponseEntity<SuccessResponse<PostResponse>> getPost(Long postId);
 
   @Operation(summary = "게시글 다건 조회")
-  ResponseEntity<SuccessResponse<PostListResponse>> getPosts(Long cursorId,int size);
+  ResponseEntity<SuccessResponse<PostListResponse>> getPosts(
+      Long cursorId,
+      @Min(1) @Max(100) int size
+  );
 
   @Operation(summary = "게시글 수정", security = @SecurityRequirement(name = "bearerAuth"))
   ResponseEntity<SuccessResponse<PostResponse>> updatePost(
       Long postId,
-      UpdatePostRequest updatePostRequest
+      @Valid UpdatePostRequest updatePostRequest
   );
 
   @Operation(summary = "게시글 삭제", security = @SecurityRequirement(name = "bearerAuth"))
