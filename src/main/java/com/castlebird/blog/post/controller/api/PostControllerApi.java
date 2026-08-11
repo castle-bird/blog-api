@@ -8,6 +8,8 @@ import com.castlebird.blog.post.dto.response.PostResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.springframework.http.ResponseEntity;
 
 @Tag(name = "게시글", description = "게시글 관련 API")
@@ -20,7 +22,7 @@ public interface PostControllerApi {
   ResponseEntity<SuccessResponse<PostResponse>> getPost(Long postId);
 
   @Operation(summary = "게시글 다건 조회")
-  ResponseEntity<SuccessResponse<PostListResponse>> getPosts(Long cursorId, int size);
+  ResponseEntity<SuccessResponse<PostListResponse>> getPosts(Long cursorId,int size);
 
   @Operation(summary = "게시글 수정", security = @SecurityRequirement(name = "bearerAuth"))
   ResponseEntity<SuccessResponse<PostResponse>> updatePost(
