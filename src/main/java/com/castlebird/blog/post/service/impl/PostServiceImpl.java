@@ -71,7 +71,10 @@ public class PostServiceImpl implements PostService {
   @Override
   @Transactional(readOnly = true)
   public PostResponse getPost(Long postId) {
-    return null;
+    Post post = postRepository.findById(postId)
+        .orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
+
+    return postMapper.toPostResponse(post);
   }
 
   @Override
