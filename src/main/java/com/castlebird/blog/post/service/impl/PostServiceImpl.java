@@ -22,6 +22,8 @@ import com.castlebird.blog.user.repository.UserRepository;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -107,7 +109,44 @@ public class PostServiceImpl implements PostService {
   @PreAuthorize("hasRole('ADMIN')")
   @Transactional
   public PostResponse updatePost(Long postId, UpdatePostRequest updatePostRequest) {
-    return null;
+    Post post = postRepository.findById(postId)
+        .orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
+    Category category = categoryRepository.findById(updatePostRequest.categoryId())
+        .orElseThrow(() -> new PostException(PostErrorCode.CATEGORY_NOT_FOUND));
+
+    // 게시글 내용부터 업데이트
+    post.update(
+        updatePostRequest.title(),
+        updatePostRequest.content(),
+        category
+    );
+
+    // 요청된 태그들의 Entity와 ID
+    List<Tag> tags = findOrCreateTags(updatePostRequest.tags());
+    Set<Long> requestedTagIds = tags.stream()
+        .map(Tag::getId)
+        .collect(Collectors.toSet());
+
+    // 현재 게시글에 연결된 태그 ID
+    Set<Long> existingTagIds = post.getPostTags().stream()
+        .map(postTag -> postTag.getId().getTagId())
+        .collect(Collectors.toSet());
+
+    // 요청 태그에 없는 기존 "게시글 ↔ 태그" 관계를 제거한다.
+    // → 요청 태그 기준으로 재정의 해야함
+    List<PostTag> removedPostTags = post.getPostTags().stream()
+        .filter(postTag -> !requestedTagIds.contains(postTag.getId().getTagId()))
+        .toList();
+    post.removeTags(removedPostTags);
+    postTagRepository.deleteAll(removedPostTags);
+
+    List<PostTag> newPostTags = tags.stream()
+        .filter(tag -> !existingTagIds.contains(tag.getId()))
+        .map(post::addTag)
+        .toList();
+    postTagRepository.saveAll(newPostTags);
+
+    return postMapper.toPostResponse(post);
   }
 
   @Override
