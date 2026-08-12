@@ -23,4 +23,16 @@ public class Category {
 
   @Column(name = "name", nullable = false, length = 100)
   private String name;
+
+  private Category(String name) {
+    this.name = name;
+  }
+
+  public static Category create(String name) {
+    return new Category(name);
+  }
+
+  public void rename(String name) {
+    this.name = name;
+  }
 }
