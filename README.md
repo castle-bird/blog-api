@@ -2,7 +2,7 @@
 
 ## 목적
 
-- Tistory나 Vlog 플랫폼에 의존하지 않는 개인 블로그를 만든다.
+- Tistory나 Velog 플랫폼에 의존하지 않는 개인 블로그를 만든다.
 - Java/Spring 백엔드 개발 역량을 쌓기 위해 MVP부터 구현하고, 기능을 점진적으로 확장한다.
 
 ## 기술 스택
@@ -13,14 +13,37 @@
 | Framework             | Spring Boot 3.5                          |
 | Security              | Spring Security, JWT (Nimbus JOSE + JWT) |
 | Persistence           | Spring Data JPA, PostgreSQL, Flyway      |
-| Cache / session store | Redis                                    |
+| Refresh Token store   | Redis                                    |
 | API documentation     | springdoc-openapi (Swagger UI)           |
 | Build                 | Gradle                                   |
+
+## 로컬 실행
+
+필수 환경은 JDK 21과 Docker다.
+
+- Docker Compose는 `.env.postgres`의 `POSTGRES_USER`, `POSTGRES_PASSWORD`와 `.env.redis`의 `REDIS_PASSWORD`를 읽는다.
+- Spring Boot에는 `POSTGRES_USER`, `POSTGRES_PASSWORD`, `REDIS_PASSWORD`, `JWT_SECRET`, `JWT_ISSUER`, `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `ADMIN_EMAIL`, `ADMIN_NICKNAME`을 환경 변수로 주입한다.
+- `JWT_SECRET`은 Base64 문자열이어야 하며, 디코딩 결과가 HS256에 필요한 32바이트 이상이어야 한다.
+- `.env.example`은 변수 목록을 위한 예시다. Spring Boot가 자동으로 읽지 않으며, Compose가 읽는 두 파일도 별도로 만들어야 한다.
+- `POSTGRES_HOST`, `REDIS_HOST`, `CORS_ALLOWED_ORIGINS`는 prod 프로필에서 사용한다.
+
+```powershell
+docker compose up -d
+.\gradlew.bat bootRun --args='--spring.profiles.active=local'
+```
+
+Swagger UI는 `http://localhost:8080/swagger-ui/index.html`에서 확인한다.
+
+```powershell
+.\gradlew.bat test
+```
+
+전체 테스트는 Testcontainers PostgreSQL을 사용하므로 Docker가 실행 중이어야 한다.
 
 ## 인증·인가
 
 - Spring Security는 `SessionCreationPolicy.STATELESS`로 구성했고, Access Token 인증에 JWT를 사용한다.
-- 로그인·토큰 재발급·로그아웃과 Swagger 문서 경로를 제외한 모든 API는 인증이 필요하다.
+- 로그인·토큰 재발급·로그아웃, 게시글·카테고리 조회, Swagger 문서 경로와 `OPTIONS` 요청은 공개한다. 그 외 API는 인증이 필요하다.
 - 개인 블로그이기 때문에 회원가입은 작성하지 않았다.
 - 개인 블로그의 관리자 계정을 중심으로 운영하므로, 현재 역할은 ADMIN과 USER만 간략히 구분한다.
 
@@ -71,7 +94,7 @@ AT 재발급
 ### Redis의 Refresh Token 키
 
 ```text
-rt:token:{rtHash}         (SET)   -> sessionId
-rt:session:{sessionId}    (HASH)  -> userId, activeTokenHash
-rt:user:{userId}:sessions (ZSET)  -> sessionId, RT 만료 시각
+rt:token:{rtHash}         (STRING) -> sessionId
+rt:session:{sessionId}    (HASH)   -> userId, activeTokenHash
+rt:user:{userId}:sessions (ZSET)   -> sessionId, RT 만료 시각
 ```
