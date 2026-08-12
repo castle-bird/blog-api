@@ -137,8 +137,16 @@ public class PostServiceImpl implements PostService {
     List<PostTag> removedPostTags = post.getPostTags().stream()
         .filter(postTag -> !requestedTagIds.contains(postTag.getId().getTagId()))
         .toList();
+    List<Long> removedTagIds = removedPostTags.stream()
+        .map(postTag -> postTag.getId().getTagId())
+        .toList();
     post.removeTags(removedPostTags);
     postTagRepository.deleteAll(removedPostTags);
+
+    // 다른 게시글에서도 사용하지 않는 제거 후보 Tag만 삭제한다.
+    if (!removedTagIds.isEmpty()) {
+      tagRepository.deleteUnusedByIdIn(removedTagIds);
+    }
 
     List<PostTag> newPostTags = tags.stream()
         .filter(tag -> !existingTagIds.contains(tag.getId()))
