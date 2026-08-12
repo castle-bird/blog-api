@@ -137,16 +137,7 @@ public class PostServiceImpl implements PostService {
     List<PostTag> removedPostTags = post.getPostTags().stream()
         .filter(postTag -> !requestedTagIds.contains(postTag.getId().getTagId()))
         .toList();
-    List<Long> removedTagIds = removedPostTags.stream()
-        .map(postTag -> postTag.getId().getTagId())
-        .toList();
-    post.removeTags(removedPostTags);
-    postTagRepository.deleteAll(removedPostTags);
-
-    // 다른 게시글에서도 사용하지 않는 제거 후보 Tag만 삭제한다.
-    if (!removedTagIds.isEmpty()) {
-      tagRepository.deleteUnusedByIdIn(removedTagIds);
-    }
+    removePostTagRelations(post, removedPostTags);
 
     List<PostTag> newPostTags = tags.stream()
         .filter(tag -> !existingTagIds.contains(tag.getId()))
@@ -161,7 +152,28 @@ public class PostServiceImpl implements PostService {
   @PreAuthorize("hasRole('ADMIN')")
   @Transactional
   public void deletePost(Long postId) {
+    Post post = postRepository.findById(postId)
+        .orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
 
+    removePostTagRelations(post, List.copyOf(post.getPostTags()));
+    post.delete();
+  }
+
+  /**
+   * 게시글에서 지정한 태그 관계를 제거하고, 다른 게시글도 사용하지 않는 Tag를 삭제한다.
+   */
+  private void removePostTagRelations(Post post, List<PostTag> postTags) {
+    if (postTags.isEmpty()) {
+      return;
+    }
+
+    List<Long> tagIds = postTags.stream()
+        .map(postTag -> postTag.getId().getTagId())
+        .toList();
+
+    post.removeTags(postTags);
+    postTagRepository.deleteAll(postTags);
+    tagRepository.deleteUnusedByIdIn(tagIds);
   }
 
   /**
