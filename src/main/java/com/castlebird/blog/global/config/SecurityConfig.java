@@ -50,7 +50,11 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
             .requestMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll()
             .requestMatchers(HttpMethod.POST, "/api/auth/logout").permitAll()
-            .requestMatchers(HttpMethod.GET, "/api/posts", "/api/posts/**").permitAll()
+            .requestMatchers(
+                HttpMethod.GET,
+                "/api/posts", "/api/posts/**",
+                "/api/categories", "/api/categories/**"
+            ).permitAll()
             .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
             .anyRequest().authenticated())
         .exceptionHandling(exception -> exception
