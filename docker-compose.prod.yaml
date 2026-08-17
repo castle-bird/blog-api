@@ -28,6 +28,8 @@ services:
       - .env
     environment:
       SPRING_PROFILES_ACTIVE: prod
+      JAVA_TOOL_OPTIONS: -Xmx384m
+    mem_limit: 480m
     depends_on:
       - postgres
       - redis
