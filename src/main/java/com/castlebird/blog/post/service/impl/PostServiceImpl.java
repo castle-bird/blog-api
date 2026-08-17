@@ -19,7 +19,6 @@ import com.castlebird.blog.post.repository.TagRepository;
 import com.castlebird.blog.post.service.PostService;
 import com.castlebird.blog.user.entity.User;
 import com.castlebird.blog.user.repository.UserRepository;
-import jakarta.persistence.EntityManager;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
@@ -50,7 +49,6 @@ public class PostServiceImpl implements PostService {
   private final PostTagRepository postTagRepository;
   private final PostMapper postMapper;
   private final UserRepository userRepository;
-  private final EntityManager entityManager;
   private final RedisTemplate<String, String> redisTemplate;
 
   @Override
@@ -83,17 +81,23 @@ public class PostServiceImpl implements PostService {
   }
 
   @Override
+  @Transactional(readOnly = true)
+  public PostResponse getPost(Long postId) {
+    Post post = postRepository.findById(postId)
+        .orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
+
+    return postMapper.toPostResponse(post);
+  }
+
+  @Override
   @Transactional
-  public PostResponse getPost(Long postId, String clientIp) {
+  public void increaseViewCount(Long postId, String clientIp) {
     Post post = postRepository.findById(postId)
         .orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
 
     if (!isAuthor(post) && isFirstViewFromIp(postId, clientIp)) {
       postRepository.increaseViewCount(postId);
-      entityManager.refresh(post);
     }
-
-    return postMapper.toPostResponse(post);
   }
 
   @Override

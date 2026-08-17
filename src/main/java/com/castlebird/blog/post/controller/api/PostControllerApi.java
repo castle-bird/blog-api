@@ -23,7 +23,10 @@ public interface PostControllerApi {
   );
 
   @Operation(summary = "게시글 단건 조회")
-  ResponseEntity<SuccessResponse<PostResponse>> getPost(Long postId, HttpServletRequest request);
+  ResponseEntity<SuccessResponse<PostResponse>> getPost(Long postId);
+
+  @Operation(summary = "게시글 조회수 증가")
+  ResponseEntity<SuccessResponse<Void>> increaseViewCount(Long postId, HttpServletRequest request);
 
   @Operation(summary = "게시글 다건 조회")
   ResponseEntity<SuccessResponse<PostListResponse>> getPosts(

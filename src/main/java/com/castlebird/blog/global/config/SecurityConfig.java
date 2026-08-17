@@ -51,7 +51,8 @@ public class SecurityConfig {
                 HttpMethod.POST,
                 "/api/auth/login",
                 "/api/auth/refresh",
-                "/api/auth/logout"
+                "/api/auth/logout",
+                "/api/posts/*/view"
             ).permitAll()
             .requestMatchers(
                 HttpMethod.GET,

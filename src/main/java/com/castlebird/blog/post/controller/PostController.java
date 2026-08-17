@@ -44,15 +44,27 @@ public class PostController implements PostControllerApi {
   @Override
   @GetMapping("/{postId}")
   public ResponseEntity<SuccessResponse<PostResponse>> getPost(
-      @PathVariable Long postId,
-      HttpServletRequest request
+      @PathVariable Long postId
   ) {
     PostResponse response =
-        postService.getPost(postId, request.getRemoteAddr());
+        postService.getPost(postId);
 
     return ResponseEntity
         .status(HttpStatus.OK)
         .body(SuccessResponse.of(response));
+  }
+
+  @Override
+  @PostMapping("/{postId}/view")
+  public ResponseEntity<SuccessResponse<Void>> increaseViewCount(
+      @PathVariable Long postId,
+      HttpServletRequest request
+  ) {
+    postService.increaseViewCount(postId, request.getRemoteAddr());
+
+    return ResponseEntity
+        .status(HttpStatus.OK)
+        .body(SuccessResponse.of());
   }
 
   @Override
