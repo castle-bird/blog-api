@@ -7,16 +7,18 @@ services:
       - .env
     environment:
       POSTGRES_DB: castlebird
+    mem_limit: 200m
     volumes:
       - postgres-data:/var/lib/postgresql/data
 
   redis:
     image: redis:7-alpine
-    command: [ "sh", "-c", "exec redis-server --requirepass \"$$REDIS_PASSWORD\"" ]
+    command: [ "sh", "-c", "exec redis-server --requirepass \"$$REDIS_PASSWORD\" --maxmemory 64mb --maxmemory-policy allkeys-lru" ]
     container_name: castle-bird-blog-redis
     restart: unless-stopped
     env_file:
       - .env
+    mem_limit: 100m
     volumes:
       - redis-data:/data
 
