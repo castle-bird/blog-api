@@ -21,8 +21,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
           WHERE pt.post = p
             AND pt.tag.name = :tag
         ))
-        AND (:keyword IS NULL OR p.title LIKE CONCAT('%', :keyword, '%')
-          OR p.content LIKE CONCAT('%', :keyword, '%'))
+        AND (:keyword IS NULL OR p.title LIKE CONCAT('%', CAST(:keyword AS string), '%')
+          OR p.content LIKE CONCAT('%', CAST(:keyword AS string), '%'))
       ORDER BY p.id DESC
       """)
   Slice<Post> search(

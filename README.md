@@ -21,10 +21,9 @@
 
 필수 환경은 JDK 21과 Docker다.
 
-- Docker Compose는 `.env.postgres`의 `POSTGRES_USER`, `POSTGRES_PASSWORD`와 `.env.redis`의 `REDIS_PASSWORD`를 읽는다.
-- Spring Boot에는 `POSTGRES_USER`, `POSTGRES_PASSWORD`, `REDIS_PASSWORD`, `JWT_SECRET`, `JWT_ISSUER`, `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `ADMIN_EMAIL`, `ADMIN_NICKNAME`을 환경 변수로 주입한다.
+- Docker Compose와 Spring Boot 둘 다 `.env` 하나를 읽는다: `POSTGRES_USER`, `POSTGRES_PASSWORD`, `REDIS_PASSWORD`, `JWT_SECRET`, `JWT_ISSUER`, `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `ADMIN_EMAIL`, `ADMIN_NICKNAME`.
 - `JWT_SECRET`은 Base64 문자열이어야 하며, 디코딩 결과가 HS256에 필요한 32바이트 이상이어야 한다.
-- `.env.example`은 변수 목록을 위한 예시다. Spring Boot가 자동으로 읽지 않으며, Compose가 읽는 두 파일도 별도로 만들어야 한다.
+- `.env.example`은 변수 목록을 위한 예시다. Spring Boot가 자동으로 읽지 않으며, `.env`는 직접 만들어야 한다.
 - `POSTGRES_HOST`, `REDIS_HOST`, `CORS_ALLOWED_ORIGINS`는 prod 프로필에서 사용한다.
 
 ```powershell
