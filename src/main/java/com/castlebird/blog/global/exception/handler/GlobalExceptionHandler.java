@@ -11,6 +11,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @Slf4j
@@ -19,7 +20,7 @@ public class GlobalExceptionHandler {
 
   // ErrorCode를 가진 프로젝트 공통 예외
   @ExceptionHandler(GlobalException.class)
-  public ResponseEntity<ErrorResponse> handleGlobalException(GlobalException e) {
+  public ResponseEntity<ErrorResponse> handleApplicationError(GlobalException e) {
     ErrorCode errorCode = e.getErrorCode();
 
     if (errorCode.getStatus().is5xxServerError()) {
@@ -33,7 +34,7 @@ public class GlobalExceptionHandler {
 
   // @Valid 요청 DTO의 필드 검증 실패
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(
+  public ResponseEntity<ErrorResponse> handleBodyValidation(
       MethodArgumentNotValidException e
   ) {
     ErrorCode errorCode = CommonErrorCode.INVALID_REQUEST;
@@ -45,6 +46,18 @@ public class GlobalExceptionHandler {
     return ResponseEntity
         .status(errorCode.getStatus())
         .body(new ErrorResponse(errorCode.getCode(), message));
+  }
+
+  // Controller 메서드의 개별 파라미터 검증 실패
+  @ExceptionHandler(HandlerMethodValidationException.class)
+  public ResponseEntity<ErrorResponse> handleParameterValidation(
+      HandlerMethodValidationException e
+  ) {
+    ErrorCode errorCode = CommonErrorCode.INVALID_REQUEST;
+
+    return ResponseEntity
+        .status(errorCode.getStatus())
+        .body(ErrorResponse.of(errorCode));
   }
 
   // JSON 형식이 잘못됐거나 요청 값을 메서드 파라미터 타입으로 변환하지 못한 경우
@@ -62,7 +75,7 @@ public class GlobalExceptionHandler {
 
   // 별도로 처리하지 못한 서버 내부 예외
   @ExceptionHandler(Exception.class)
-  public ResponseEntity<ErrorResponse> handleException(Exception e) {
+  public ResponseEntity<ErrorResponse> handleUnexpectedError(Exception e) {
     log.error("처리되지 않은 예외가 발생했습니다.", e);
     ErrorCode errorCode = CommonErrorCode.INTERNAL_SERVER_ERROR;
 
