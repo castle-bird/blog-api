@@ -93,7 +93,7 @@ public class AuthController implements AuthControllerApi {
             refreshToken)
         .httpOnly(true)
         .secure(securityProperties.cookieSecure())
-        .sameSite("Lax")
+        .sameSite(securityProperties.cookieSecure() ? "None" : "Lax")
         .path(REFRESH_TOKEN_PATH);
   }
 }
