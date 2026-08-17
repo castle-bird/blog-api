@@ -9,7 +9,9 @@ public interface PostService {
 
   PostResponse createPost(CreatePostRequest createPostRequest);
 
-  PostResponse getPost(Long postId, String clientIp);
+  PostResponse getPost(Long postId);
+
+  void increaseViewCount(Long postId, String clientIp);
 
   PostListResponse getPosts(Long cursorId, int size, String tag, String keyword);
 
