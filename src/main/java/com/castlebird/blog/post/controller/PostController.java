@@ -7,6 +7,7 @@ import com.castlebird.blog.post.dto.request.UpdatePostRequest;
 import com.castlebird.blog.post.dto.response.PostListResponse;
 import com.castlebird.blog.post.dto.response.PostResponse;
 import com.castlebird.blog.post.service.PostService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,10 +44,11 @@ public class PostController implements PostControllerApi {
   @Override
   @GetMapping("/{postId}")
   public ResponseEntity<SuccessResponse<PostResponse>> getPost(
-      @PathVariable Long postId
+      @PathVariable Long postId,
+      HttpServletRequest request
   ) {
     PostResponse response =
-        postService.getPost(postId);
+        postService.getPost(postId, request.getRemoteAddr());
 
     return ResponseEntity
         .status(HttpStatus.OK)
@@ -57,10 +59,12 @@ public class PostController implements PostControllerApi {
   @GetMapping
   public ResponseEntity<SuccessResponse<PostListResponse>> getPosts(
       @RequestParam(required = false) Long cursorId,
-      @RequestParam(defaultValue = "10") int size
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(required = false) String tag,
+      @RequestParam(required = false) String keyword
   ) {
     PostListResponse response =
-        postService.getPosts(cursorId, size);
+        postService.getPosts(cursorId, size, tag, keyword);
 
     return ResponseEntity
         .status(HttpStatus.OK)

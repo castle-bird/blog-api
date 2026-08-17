@@ -8,6 +8,7 @@ import com.castlebird.blog.post.dto.response.PostResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -22,12 +23,14 @@ public interface PostControllerApi {
   );
 
   @Operation(summary = "게시글 단건 조회")
-  ResponseEntity<SuccessResponse<PostResponse>> getPost(Long postId);
+  ResponseEntity<SuccessResponse<PostResponse>> getPost(Long postId, HttpServletRequest request);
 
   @Operation(summary = "게시글 다건 조회")
   ResponseEntity<SuccessResponse<PostListResponse>> getPosts(
       Long cursorId,
-      @Min(1) @Max(100) int size
+      @Min(1) @Max(100) int size,
+      String tag,
+      String keyword
   );
 
   @Operation(summary = "게시글 수정", security = @SecurityRequirement(name = "bearerAuth"))

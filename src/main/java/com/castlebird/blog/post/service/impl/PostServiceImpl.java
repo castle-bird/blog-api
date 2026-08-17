@@ -19,6 +19,8 @@ import com.castlebird.blog.post.repository.TagRepository;
 import com.castlebird.blog.post.service.PostService;
 import com.castlebird.blog.user.entity.User;
 import com.castlebird.blog.user.repository.UserRepository;
+import jakarta.persistence.EntityManager;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +30,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,12 +41,17 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
 
+  private static final String VIEW_COUNT_KEY_PREFIX = "view:post:";
+  private static final Duration VIEW_COUNT_TTL = Duration.ofHours(24);
+
   private final PostRepository postRepository;
   private final CategoryRepository categoryRepository;
   private final TagRepository tagRepository;
   private final PostTagRepository postTagRepository;
   private final PostMapper postMapper;
   private final UserRepository userRepository;
+  private final EntityManager entityManager;
+  private final RedisTemplate<String, String> redisTemplate;
 
   @Override
   @PreAuthorize("hasRole('ADMIN')")
@@ -74,22 +83,25 @@ public class PostServiceImpl implements PostService {
   }
 
   @Override
-  @Transactional(readOnly = true)
-  public PostResponse getPost(Long postId) {
+  @Transactional
+  public PostResponse getPost(Long postId, String clientIp) {
     Post post = postRepository.findById(postId)
         .orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
+
+    if (!isAuthor(post) && isFirstViewFromIp(postId, clientIp)) {
+      postRepository.increaseViewCount(postId);
+      entityManager.refresh(post);
+    }
 
     return postMapper.toPostResponse(post);
   }
 
   @Override
   @Transactional(readOnly = true)
-  public PostListResponse getPosts(Long cursorId, int size) {
+  public PostListResponse getPosts(Long cursorId, int size, String tag, String keyword) {
     Pageable pageable = PageRequest.of(0, size);
 
-    Slice<Post> postSlice = cursorId == null
-        ? postRepository.findAllByOrderByIdDesc(pageable)
-        : postRepository.findByIdLessThanOrderByIdDesc(cursorId, pageable);
+    Slice<Post> postSlice = postRepository.search(cursorId, tag, keyword, pageable);
 
     List<PostResponse> posts = postSlice.getContent().stream()
         .map(postMapper::toPostResponse)
@@ -221,5 +233,29 @@ public class PostServiceImpl implements PostService {
     return (CustomUserDetails) SecurityContextHolder.getContext()
         .getAuthentication()
         .getPrincipal();
+  }
+
+  /**
+   * 요청자가 게시글 작성자 본인인지 판별한다. 비로그인 요청은 항상 false.
+   */
+  private boolean isAuthor(Post post) {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+    if (!(authentication.getPrincipal() instanceof CustomUserDetails principal)) {
+      return false;
+    }
+
+    return principal.getUserId().equals(post.getAuthor().getId());
+  }
+
+  /**
+   * 같은 IP가 24시간 내 이미 조회한 게시글이면 false.
+   */
+  private boolean isFirstViewFromIp(Long postId, String clientIp) {
+    String key = VIEW_COUNT_KEY_PREFIX + postId + ":" + clientIp;
+    Boolean isFirstView = redisTemplate.opsForValue()
+        .setIfAbsent(key, "1", VIEW_COUNT_TTL);
+
+    return Boolean.TRUE.equals(isFirstView);
   }
 }
