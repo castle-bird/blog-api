@@ -12,9 +12,25 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
 
-  Slice<Post> findAllByOrderByIdDesc(Pageable pageable);
-
-  Slice<Post> findByIdLessThanOrderByIdDesc(Long postId, Pageable pageable);
+  @Query("""
+      SELECT p FROM Post p
+      WHERE
+        (:cursorId IS NULL OR p.id < :cursorId)
+        AND (:tag IS NULL OR EXISTS (
+          SELECT 1 FROM PostTag pt
+          WHERE pt.post = p
+            AND pt.tag.name = :tag
+        ))
+        AND (:keyword IS NULL OR p.title LIKE CONCAT('%', :keyword, '%')
+          OR p.content LIKE CONCAT('%', :keyword, '%'))
+      ORDER BY p.id DESC
+      """)
+  Slice<Post> search(
+      @Param("cursorId") Long cursorId,
+      @Param("tag") String tag,
+      @Param("keyword") String keyword,
+      Pageable pageable
+  );
 
   @Modifying
   @Query(""" 

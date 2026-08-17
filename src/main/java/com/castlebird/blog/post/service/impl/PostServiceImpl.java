@@ -98,12 +98,10 @@ public class PostServiceImpl implements PostService {
 
   @Override
   @Transactional(readOnly = true)
-  public PostListResponse getPosts(Long cursorId, int size) {
+  public PostListResponse getPosts(Long cursorId, int size, String tag, String keyword) {
     Pageable pageable = PageRequest.of(0, size);
 
-    Slice<Post> postSlice = cursorId == null
-        ? postRepository.findAllByOrderByIdDesc(pageable)
-        : postRepository.findByIdLessThanOrderByIdDesc(cursorId, pageable);
+    Slice<Post> postSlice = postRepository.search(cursorId, tag, keyword, pageable);
 
     List<PostResponse> posts = postSlice.getContent().stream()
         .map(postMapper::toPostResponse)

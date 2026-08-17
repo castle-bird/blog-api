@@ -59,10 +59,12 @@ public class PostController implements PostControllerApi {
   @GetMapping
   public ResponseEntity<SuccessResponse<PostListResponse>> getPosts(
       @RequestParam(required = false) Long cursorId,
-      @RequestParam(defaultValue = "10") int size
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(required = false) String tag,
+      @RequestParam(required = false) String keyword
   ) {
     PostListResponse response =
-        postService.getPosts(cursorId, size);
+        postService.getPosts(cursorId, size, tag, keyword);
 
     return ResponseEntity
         .status(HttpStatus.OK)

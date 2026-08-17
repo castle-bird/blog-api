@@ -11,7 +11,7 @@ public interface PostService {
 
   PostResponse getPost(Long postId, String clientIp);
 
-  PostListResponse getPosts(Long cursorId, int size);
+  PostListResponse getPosts(Long cursorId, int size, String tag, String keyword);
 
   PostResponse updatePost(Long postId, UpdatePostRequest updatePostRequest);
 
