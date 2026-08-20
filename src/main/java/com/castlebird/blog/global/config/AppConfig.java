@@ -3,6 +3,7 @@ package com.castlebird.blog.global.config;
 import com.castlebird.blog.global.config.properties.AdminProperties;
 import com.castlebird.blog.global.config.properties.JwtProperties;
 import com.castlebird.blog.global.config.properties.SecurityProperties;
+import com.castlebird.blog.global.config.properties.UploadProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
@@ -12,7 +13,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableConfigurationProperties({
     SecurityProperties.class,
     JwtProperties.class,
-    AdminProperties.class
+    AdminProperties.class,
+    UploadProperties.class
 })
 public class AppConfig {
 

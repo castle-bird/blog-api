@@ -32,6 +32,8 @@ services:
       SPRING_PROFILES_ACTIVE: prod
       JAVA_TOOL_OPTIONS: -Xmx384m
     mem_limit: 480m
+    volumes:
+      - upload-data:/data/uploads
     depends_on:
       - postgres
       - redis
@@ -52,3 +54,4 @@ services:
 volumes:
   postgres-data:
   redis-data:
+  upload-data:

@@ -49,6 +49,10 @@ dependencies {
     // DTO and Entity mapper API
     implementation 'org.mapstruct:mapstruct:1.6.3'
 
+    // Image resize/compress
+    implementation 'net.coobird:thumbnailator:0.4.20'
+    implementation 'com.twelvemonkeys.imageio:imageio-webp:3.11.0'
+
     // Test support
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
